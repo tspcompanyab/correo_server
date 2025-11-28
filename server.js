@@ -1,42 +1,44 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+import dotenv from "dotenv";
 
+dotenv.config(); // <-- Cargar variables .env
+// Inicializar Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Ruta POST para enviar correo
 app.post("/send", async (req, res) => {
   const { name, email, message } = req.body;
 
   try {
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Web Contact" <${process.env.MAIL_USER}>`,
-      to: process.env.MAIL_USER,
+    const result = await resend.emails.send({
+      from: "onboarding@resend.dev",  // Puedes poner otro dominio cuando lo verifiques
+      to: "tspcompanyab@gmail.com",
       subject: "Nuevo mensaje desde la web",
       html: `
-        <b>Nombre:</b> ${name}<br>
-        <b>Email:</b> ${email}<br>
-        <b>Mensaje:</b> ${message}
+        <h2>Nuevo mensaje desde tu página web</h2>
+        <p><b>Nombre:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Mensaje:</b></p>
+        <p>${message}</p>
       `,
     });
 
-    res.json({ success: true });
+    console.log(result);
+
+    return res.json({ success: true });
 
   } catch (error) {
-    console.error(error);
-    res.json({ success: false, error: error.message });
+    console.error("Resend Error:", error);
+    return res.json({ success: false, error: error.message });
   }
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+// Render autodefine el puerto usando process.env.PORT
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Servidor corriendo en " + PORT));
