@@ -18,7 +18,7 @@ app.post("/send", async (req, res) => {
   try {
     const result = await resend.emails.send({
       from: "info@mtg-cleaningservices.com",  // Puedes poner otro dominio cuando lo verifiques
-      to: "tspcompanyab@gmail.com",
+      to: "garciatorivio0416@gmail.com",
       subject: "Nuevo mensaje desde la web",
       html: `
         <h2>Nuevo mensaje desde tu página web</h2>
